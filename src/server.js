@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
 import apiRoute from "./routes/api.route.js";
+import { worker } from "./helper/worker.js";
 
 dotenv.config();
 const port = process.env.PORT || 3000;
@@ -13,6 +14,8 @@ app.use(bodyParser.json());
 
 app.use("/api", apiRoute);
 
-app.listen(port, () => {
-  console.log(`App listening on port ${port}`);
-});
+// worker.then(() => {
+  app.listen(port, () => {
+    console.log(`App listening on port ${port}`);
+  });
+// });

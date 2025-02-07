@@ -1,4 +1,5 @@
 import Joi from "joi";
+import { producer } from "../helper/producer.js";
 
 export const createTaskSchema = Joi.object({
   text: Joi.string().required(),
@@ -24,7 +25,9 @@ export const createTask = async (req, res) => {
       return;
     }
 
-    return res.status(200).json();
+    const jobId = await producer(payloadValue);
+
+    return res.status(200).json({ jobId });
   } catch (error) {
     console.log("error", "error in create task", error);
     return res.status(500).json({
