@@ -7,14 +7,7 @@ const taskQueue = new Queue("task-queue", {
   },
   connection: redisConnection,
 });
-const errorQueue = new Queue("error-queue", {
-  defaultJobOptions: {
-    attempts: 1,
-  },
-  connection: redisConnection,
-});
 const taskQueueEvent = new QueueEvents("task-queue");
-const errorQueueEvent = new QueueEvents("error-queue");
 
 export const producer = async (obj) => {
   try {
@@ -30,25 +23,8 @@ export const producer = async (obj) => {
   }
 };
 
-export const errorQueueProducer = async (obj) => {
-  try {
-    const res = await errorQueue.add("error", {
-      text: obj.text,
-      operation: obj.operation,
-    });
-
-    console.log("Task added to Error Queue", res.id);
-    return res.id;
-  } catch (error) {
-    console.log("error from error queue", error);
-  }
-};
-
 taskQueueEvent.on("failed", async (job, val) => {
   console.log("Error from task queue", { job, val });
-});
-errorQueueEvent.on("failed", async (job, val) => {
-  console.log("error from error queue", { job, val });
 });
 
 export const getJob = async (jobId) => {

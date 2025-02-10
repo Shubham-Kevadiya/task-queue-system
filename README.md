@@ -17,6 +17,7 @@
 4. Then you **npm start** simply run this command in terminal and your server will start, wait for log **App listening on port{your port}** in terminal. If this you didn't get this log or get any other error solve it.
 
 ## API Examples:
+
 - This project contains two apis
   1. Create Task
   2. Get status of Task using jobId
@@ -25,33 +26,45 @@
 
 - In this api job is created for you task and it will complete by worker.
 
-_Path : /api/tasks/_
+```
+Path : /api/tasks/
+```
 
-Method : POST
+Method : **POST**
 
 Params : No Params
 Query Params : No Query Params
 
 body type : JSON
-body : {
-text: {type : string},
-operation:{type:reverse} this should be either uppercase or reverse
+
+body :
+
+```
+{
+  text : { type : string },
+  operation : { type:reverse } - this should be either uppercase or reverse
 }
+```
 
 response type : JSON
-response : {
-"jobId": {type:string}
-}
+
+response :
+
+```
+"jobId": { type : string }
+```
 
 ### 2. Status Check
 
 - In this api status of perticuler job is checked using jobId, and if job's status is completed then send status and result both otherwise send only status.
 
-_Path : /api/tasks/:taskId_
+```
+Path : /api/tasks/:taskId
+```
 
-Method : GET
+Method : **GET**
 
-Params : taskId (type: string)
+Params : taskId { type : string }
 Query : No Query Params
 
 body type : N/A
@@ -59,20 +72,28 @@ body : No body
 
 response type : JSON
 
-```
-if status is **"completed"**
+**if status is "completed"**
 
-response : {
-"job": {
-"status": {type : string},
-"result": {
-"uppercase": {type:string},
-"reverse": {type:string}
+response :
+
+```
+{
+  "job": {
+            "status" : { type : string },
+            "result" : {
+                        "uppercase" : { type : string },
+                        "reverse" : { type : string }
+                        }
+        }
 }
-}
-}
-else
-response : {
-"status": {type : string}
+```
+
+**else**
+
+response :
+
+```
+{
+  "status" : {type : string}
 }
 ```
