@@ -40,8 +40,8 @@ export const createTask = async (req, res) => {
 export const getTaskStatus = async (req, res) => {
   try {
     const jobId = req.params.jobId;
-    const job = await getJobStatus(jobId);
-    return res.status(200).json({ job });
+    const status = await getJobStatus(jobId);
+    return res.status(200).json({ status });
   } catch (error) {
     console.log("error", "error in get task status", error);
     return res.status(500).json({
