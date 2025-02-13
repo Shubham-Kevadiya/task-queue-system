@@ -24,11 +24,16 @@ export const sendOTP = async (req, res) => {
     const payloadValue = req.payloadValue;
     const otp = generateOTP();
     await saveOtp({ otp, user: payloadValue.userId });
-    // await sendMail({ otp, mail: req.authUser.email });
-
-    return res
-      .status(200)
-      .json({ msg: "OTP send successfully. Please check your mail", otp });
+    const flag = await sendMail({ otp, mail: req.authUser.email });
+    if (flag) {
+      return res
+        .status(200)
+        .json({ msg: "OTP send successfully. Please check your mail", otp });
+    } else {
+      return res
+        .status(422)
+        .json({ msg: "Unable to send OTP, please check your email id", otp });
+    }
   } catch (error) {
     console.log("error", "error in sending OTP", error);
     return res.status(500).json({

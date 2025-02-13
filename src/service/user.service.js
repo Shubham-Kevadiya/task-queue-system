@@ -13,7 +13,7 @@ export const getOneUser = async (query) => {
   return user;
 };
 export const getUserById = async (userId) => {
-  const user = await userModel.findById(userId);
+  const user = await userModel.findById(userId).lean();
   return user;
 };
 export const updateUserById = async (userData) => {

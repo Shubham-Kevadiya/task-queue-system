@@ -1,28 +1,26 @@
 import nodemailer from "nodemailer";
 
+const transporter = nodemailer.createTransport({
+  service: "Gmail",
+  auth: {
+    user: process.env.MAIL_USERNAME,
+    pass: process.env.MAIL_PASSWORD,
+  },
+});
 export const sendMail = async ({ otp, mail }) => {
-  const transporter = nodemailer.createTransport({
-    service: "Gmail",
-    auth: {
-      user: process.env.MAIL_USERNAME,
-      pass: process.env.MAIL_PASSWORD,
-    },
-  });
-
+  // const sendMail = ({ otp, mail }) => {
   const mailOptions = {
     from: process.env.MAIL_USERNAME,
     to: mail,
     subject: "OTP for Authentication",
     text: `Your OTP is: ${otp}`,
   };
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      flag = false;
-      console.error("Error sending OTP via email:", error);
-      return error;
-    } else {
-      flag = true;
-      console.log("OTP sent via email:", info.response);
-    }
+  let flag = false;
+  await new Promise((resolve, reject) => {
+    transporter.sendMail(mailOptions);
+    resolve((flag = true));
+    reject((flag = false));
   });
+  return flag;
 };
+// };
