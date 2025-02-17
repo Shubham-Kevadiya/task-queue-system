@@ -1,11 +1,11 @@
 import express from "express";
 import {
+  Is2FASetUp,
   login,
   makeAdmin,
   register,
-  sendOTPByGA,
-  verifyOTPOfGA,
-  verifyRefreshToken,
+  setUp2FAByApp,
+  verify2FAByApp,
 } from "../controller/user.controller.js";
 import {
   loginValidation,
@@ -22,20 +22,21 @@ const userRoute = express.Router();
 userRoute.post("/register", registerValidation, register);
 userRoute.post("/login", loginValidation, login);
 userRoute.post(
-  "/sendOTPByGA",
+  "/setUp2FAByApp",
   validateAuthIdToken,
   validateIsAdmin,
   sendOTPOfGAValidation,
-  sendOTPByGA
+  setUp2FAByApp
 );
+userRoute.get("/Is2FASetUp", validateAuthIdToken, validateIsAdmin, Is2FASetUp);
 userRoute.post(
-  "/verifyOTPOfGA",
+  "/verify2FAByApp",
   validateAuthIdToken,
   validateIsAdmin,
   verifyOTPOfGAValidation,
-  verifyOTPOfGA
+  verify2FAByApp
 );
-userRoute.post("/verifyRefreshToken", verifyRefreshToken);
+// userRoute.post("/verifyRefreshToken", verifyRefreshToken);
 userRoute.post(
   "/makeAdmin/:userId",
   validateAuthIdToken,

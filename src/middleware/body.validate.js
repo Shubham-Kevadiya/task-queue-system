@@ -24,7 +24,6 @@ const sendOTPOfGASchema = Joi.object({
 
 const verifyOTPOfGASchema = Joi.object({
   otp: Joi.string().required(),
-  token: Joi.string().required(),
 });
 
 const generateOTPSchema = Joi.object({

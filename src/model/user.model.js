@@ -22,6 +22,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "USER",
     },
+    authSecret: {
+      type: String,
+      default: "",
+    },
   },
   { timestamps: true }
 );

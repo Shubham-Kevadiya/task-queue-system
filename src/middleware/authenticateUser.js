@@ -33,7 +33,8 @@ export const validateAuthIdToken = async (req, res, next) => {
     res.status(403).json({ message: "Unauthorized request." });
     return;
   }
-
+  delete user.password;
+  delete user.authSecret;
   req.authUser = user;
   next();
   return;

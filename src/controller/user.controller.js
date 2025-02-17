@@ -2,7 +2,6 @@ import CryptoJS from "crypto-js";
 import jwt from "jsonwebtoken";
 import speakeasy from "speakeasy";
 import QRCode from "qrcode";
-import fs from "fs";
 import { v4 as uuidv4 } from "uuid";
 import { userModel } from "../model/user.model.js";
 import {
@@ -118,6 +117,9 @@ export const login = async (req, res) => {
     //   user: user.id,
     // });
     req.session.userId = user._id;
+    delete user.password;
+    delete user.authSecret;
+
     if (user.userType == "ADMIN") {
       const existingTokenOfUser = await getOneToken({
         type: "Verify for Auth",
@@ -161,41 +163,60 @@ export const login = async (req, res) => {
   }
 };
 
-export const verifyRefreshToken = async (req, res) => {
-  const refreshToken = req.cookies["refreshToken"];
-  if (!refreshToken) {
-    return res.status(401).send("Access Denied. No refresh token provided.");
-  }
+// export const verifyRefreshToken = async (req, res) => {
+//   const refreshToken = req.cookies["refreshToken"];
+//   if (!refreshToken) {
+//     return res.status(401).send("Access Denied. No refresh token provided.");
+//   }
 
+//   try {
+//     const decoded = jwt.verify(
+//       refreshToken,
+//       process.env.REFRESH_TOKEN_SECRET,
+//       (err, decoded) => {
+//         if (err) {
+//           console.log(err);
+//           return res
+//             .status(403)
+//             .json({ error: "Forbidden: Refresh token expired!" });
+//         }
+//         req.user = decoded.username;
+//       }
+//     );
+//     const accessToken = jwt.sign(
+//       { user: decoded.user },
+//       process.env.JWT_SECRET,
+//       {
+//         expiresIn: "1h",
+//       }
+//     );
+//     const user = await getUserById(decoded.user);
+//     return res.status(200).set({ "x-auth-token": accessToken }).json({ user });
+//   } catch (error) {
+//     return res.status(400).send("Invalid refresh token.");
+//   }
+// };
+
+export const Is2FASetUp = async (req, res) => {
   try {
-    const decoded = jwt.verify(
-      refreshToken,
-      process.env.REFRESH_TOKEN_SECRET,
-      (err, decoded) => {
-        if (err) {
-          console.log(err);
-          return res
-            .status(403)
-            .json({ error: "Forbidden: Refresh token expired!" });
-        }
-        req.user = decoded.username;
-      }
-    );
-    const accessToken = jwt.sign(
-      { user: decoded.user },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "1h",
-      }
-    );
-    const user = await getUserById(decoded.user);
-    return res.status(200).set({ "x-auth-token": accessToken }).json({ user });
+    const user = await getUserById(req.authUser._id);
+    if (!user) {
+      res.status(403).json({ Is2FASetUp: flag });
+    }
+    let flag = false;
+    if (user.authSecret != "") {
+      flag = true;
+    }
+    return res.status(200).json({ Is2FASetUp: flag });
   } catch (error) {
-    return res.status(400).send("Invalid refresh token.");
+    console.log("Error from send OTP by GA", error);
+    return res
+      .status(500)
+      .send({ msg: "Something went wrong, please try again later" });
   }
 };
 
-export const sendOTPByGA = async (req, res) => {
+export const setUp2FAByApp = async (req, res) => {
   try {
     const payloadValue = req.payloadValue;
     const token = await getOneToken({
@@ -217,7 +238,7 @@ export const sendOTPByGA = async (req, res) => {
 
     // Function to generate a QR code URL for Google Authenticator
 
-    const qrcodeURL = await QRCode.toDataURL(secret.otpauth_url);
+    const qrcodeURL = QRCode.toDataURL(secret.otpauth_url);
     // let base64Image = qrcodeURL.split(";base64,").pop();
     // fs.writeFile(
     //   "uploads/image.png",
@@ -228,19 +249,22 @@ export const sendOTPByGA = async (req, res) => {
     //   }
     // );
     await deleteTokenById(token._id);
+    await updateUserById({ ...req.authUser, authSecret: secret.base32 });
     // return res
     //   .status(200)
     //   .sendFile(
     //     "/Users/shubham/Desktop/shubham/javascript/task-queue-system/uploads/image.png"
     //   );
-    return res.status(200).json({ qrImage: qrcodeURL, token: secret.base32 });
+    return res.status(200).json({ qrImage: qrcodeURL });
   } catch (error) {
-    console.log("Error from send OTP by GA", error);
-    return res.status(500).send("Something went wrong, please try again later");
+    console.log("Error from setUp 2FA By App", error);
+    return res
+      .status(500)
+      .send({ msg: "Something went wrong, please try again later" });
   }
 };
 
-export const verifyOTPOfGA = async (req, res) => {
+export const verify2FAByApp = async (req, res) => {
   try {
     const payloadValue = req.payloadValue;
     const verified = speakeasy.totp.verify({
@@ -255,7 +279,7 @@ export const verifyOTPOfGA = async (req, res) => {
       return res.status(422).json({ msg: "Invalid OTP" });
     }
   } catch (error) {
-    console.log("Error from verify OTP by GA", error);
+    console.log("Error from verify 2FA By App", error);
     return res.status(500).send("Something went wrong, please try again later");
   }
 };

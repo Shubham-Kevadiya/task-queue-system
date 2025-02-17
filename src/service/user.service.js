@@ -17,7 +17,7 @@ export const getUserById = async (userId) => {
   return user;
 };
 export const updateUserById = async (userData) => {
-  const user = await userModel.findByIdAndUpdate(userData.id, { ...userData });
+  const user = await userModel.findByIdAndUpdate(userData._id, { ...userData });
   return user;
 };
 export const deleteUserById = async (userId) => {

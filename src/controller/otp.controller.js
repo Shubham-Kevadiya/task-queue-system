@@ -32,7 +32,7 @@ export const sendOTP = async (req, res) => {
     } else {
       return res
         .status(422)
-        .json({ msg: "Unable to send OTP, please check your email id", otp });
+        .json({ msg: "Unable to send OTP, please check your email id" });
     }
   } catch (error) {
     console.log("error", "error in sending OTP", error);
